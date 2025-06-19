@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Nemesis</title>
+
+  <!-- Tailwind CSS Link -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.1/tailwind.min.css">
+
+  <!-- Fontawesome Link -->
+  <link href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" rel="stylesheet">
+
+</head>
+<body class="bg-gray-200">
+
+<div class="container mx-auto px-4 mt-8">
+  <form action="/search" method="GET" class="mb-4">
+    <input type="text" name="query" placeholder="Buscar medicamento..." class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-700">Buscar</button>
+  </form>
+
+  <!-- Resto del código de la plantilla -->
+  <!-- index.hbs -->
+  <a href="/cart" class="bg-blue-500 text-white px-4 py-2 rounded-md">Ver Carrito</a>
+
+</div>
+
+{{#if products}}
+<div class="container mx-auto px-4 mt-8">
+  <h2 class="text-2xl font-semibold mb-4">Productos</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {{#each products}}
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-4">
+        <h3 class="text-xl font-semibold mb-2">{{this.name}}</h3>
+        <p class="text-gray-500 mb-4">{{this.description}}</p>
+        <p class="text-gray-700 font-semibold">${{this.price}}</p>
+        <div class="flex items-center mt-4">
+          <button class="bg-green-500 text-white px-3 py-1 rounded-full mr-2" onclick="event.preventDefault(); decreaseQuantity('{{this.id}}')">-</button>
+          <input id="quantity-{{this.id}}" type="number" min="1" value="1" class="w-16 border border-gray-300 rounded-md px-2 py-1 text-center">
+          <button class="bg-green-500 text-white px-3 py-1 rounded-full ml-2" onclick="event.preventDefault(); increaseQuantity('{{this.id}}')">+</button>
+          <button class="bg-blue-500 text-white px-4 py-2 rounded-md ml-auto buy-button" data-product-id="{{this.id}}">Comprar</button>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+{{else}}
+<div class="container mx-auto px-4 mt-8">
+  <p>No hay productos disponibles.</p>
+</div>
+{{/if}}
+
+
+<script>
+function increaseQuantity(productId) {
+  // Realiza una solicitud HTTP a tu servidor Node.js para ejecutar la función increaseQuantity
+  fetch(`/increase/${productId}`, {
+    method: "POST"
+  })
+  .then(response => response.text())
+  .then(data => {
+    // Maneja la respuesta del servidor, por ejemplo, muestra un mensaje de éxito
+    console.log(data);
+
+    // Mostrar un aviso de incremento exitoso
+    var message = `Se ha incrementado la cantidad del producto ${productId}.`;
+    alert(message);
+  })
+  .catch(error => {
+    // Maneja cualquier error que ocurra durante la solicitud HTTP
+    console.error("Error:", error);
+
+    // Mostrar un mensaje de error al incrementar la cantidad del producto
+    var errorMessage = "Error al incrementar la cantidad del producto.";
+    alert(errorMessage);
+  });
+}
+
+  
+function decreaseQuantity(productId) {
+  // Realiza una solicitud HTTP para obtener la cantidad actual del producto
+  fetch(`/getQuantity/${productId}`)
+    .then(response => response.text())
+    .then(currentQuantity => {
+      // Resta la cantidad ingresada a la cantidad actual
+      var quantityInput = document.getElementById('quantity-' + productId);
+      var quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+      var newQuantity = parseInt(currentQuantity) - quantity;
+
+      // Realiza una solicitud HTTP para actualizar la cantidad en la base de datos
+      fetch(`/decrease/${productId}`, {
+        method: "POST",
+        body: JSON.stringify({ quantity: newQuantity }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => response.text())
+      .then(data => {
+        // Maneja la respuesta del servidor, por ejemplo, muestra un mensaje de éxito
+        console.log(data);
+
+        // Mostrar un aviso de decremento exitoso
+        var message = `Se ha decrementado la cantidad del producto ${productId}.`;
+        alert(message);
+      })
+      .catch(error => {
+        // Maneja cualquier error que ocurra durante la solicitud HTTP
+        console.error("Error:", error);
+      });
+    })
+    .catch(error => {
+      // Maneja cualquier error que ocurra durante la solicitud HTTP para obtener la cantidad actual
+      console.error("Error:", error);
+    });
+}
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  function addToCart(productId) {
+    var quantityInput = document.getElementById('quantity-' + productId);
+    var quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+
+    fetch(`/addToCart/${productId}`, {
+      method: "POST",
+      body: JSON.stringify({ quantity }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.text())
+    .then(data => {
+      console.log(data);
+
+      // Mostrar un mensaje de éxito al agregar al carrito
+      var message = `Se ha agregado el producto ${productId} al carrito.`;
+      alert(message);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+
+      // Mostrar un mensaje de error al agregar al carrito
+      var errorMessage = "Error al agregar el producto al carrito.";
+      alert(errorMessage);
+    });
+  }
+
+  // Evento click para los botones de comprar
+  var buyButtons = document.getElementsByClassName('buy-button');
+  for (var i = 0; i < buyButtons.length; i++) {
+    var buyButton = buyButtons[i];
+    buyButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      var productId = this.getAttribute('data-product-id');
+      addToCart(productId);
+    });
+  }
+
+  // Lógica adicional si es necesario
+});
+</script>
+
+</body>
+</html>

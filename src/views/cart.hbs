@@ -1,0 +1,40 @@
+<!-- cart.hbs -->
+{{#if cartProducts}}
+<div class="container mx-auto px-4 mt-8">
+  <h2 class="text-2xl font-semibold mb-4">Carrito de Compras</h2>
+  <table class="min-w-full">
+    <thead>
+      <tr>
+        <th class="px-4 py-2">Producto</th>
+        <th class="px-4 py-2">Cantidad</th>
+        <th class="px-4 py-2">Precio unitario</th>
+        <th class="px-4 py-2">Subtotal</th>
+        <th class="px-4 py-2"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each cartProducts}}
+      <tr>
+        <td class="px-4 py-2">{{this.name}}</td>
+        <td class="px-4 py-2">{{this.quantity}}</td>
+        <td class="px-4 py-2">${{this.price}}</td>
+        <td class="px-4 py-2">${{this.subtotal}}</td>
+        <td class="px-4 py-2">
+          <button class="bg-red-500 text-white px-3 py-1 rounded-full remove-from-cart" data-product-id="{{this.id}}">Eliminar</button>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <div class="mt-8">
+    <h3 class="text-xl font-semibold mb-2">Total: ${{total}}</h3>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-md" onclick="checkout()">Pagar</button>
+  </div>
+</div>
+{{else}}
+<div class="container mx-auto px-4 mt-8">
+  <p>No hay productos en el carrito.</p>
+</div>
+{{/if}}
+
+
