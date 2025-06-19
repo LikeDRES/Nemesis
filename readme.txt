@@ -1,15 +1,2 @@
-  Ideas, para el Login despues del Register
-  
-  <script>
-    function mostrarConfirmacion() {
-      var resultado = confirm("¿Estás seguro de continuar?");
-      
-      if (resultado) {
-        // Código a ejecutar si se hace clic en "Aceptar"
-        alert("Has seleccionado Aceptar");
-      } else {
-        // Código a ejecutar si se hace clic en "Cancelar"
-        alert("Has seleccionado Cancelar");
-      }
-    }
-  </script>
+🧪 Mocap Testing Utility
+Este repositorio contiene un conjunto de scripts y herramientas diseñadas para el testeo, validación y visualización de datos de captura de movimiento (mocap). Fue desarrollado con el propósito de analizar la calidad de los datos, validar integridad de frames y verificar la consistencia de puntos clave.
